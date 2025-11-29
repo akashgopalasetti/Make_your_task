@@ -1,10 +1,9 @@
 // frontend/src/pages/Register.jsx
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import API from "../api/api";
 
 export default function Register() {
-  const { register } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ name: "", email: "", password: "" });
@@ -14,7 +13,6 @@ export default function Register() {
   const validate = () => {
     if (!form.name.trim()) return "Name is required";
     if (!form.email.trim()) return "Email is required";
-    // simple email regex
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRe.test(form.email)) return "Please enter a valid email";
     if (form.password.length < 6) return "Password must be at least 6 characters";
@@ -35,20 +33,33 @@ export default function Register() {
       return;
     }
 
+    setLoading(true);
     try {
-      setLoading(true);
-      await register(form.name.trim(), form.email.trim(), form.password);
+      // debug: show which baseURL is used
+      console.log("API baseURL:", API.defaults.baseURL || import.meta.env.VITE_API_URL);
+
+      const res = await API.post("/auth/register", {
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
+      });
+
+      // If backend returns token/user, you can optionally store or rely on cookie
+      console.log("Register response:", res.data);
+
+      // navigate to dashboard after successful register
       navigate("/dashboard");
     } catch (err) {
-      // AuthContext.register should throw the axios error or returned message.
-      // Normalize possible shapes:
+      // Normalize server error message
       const serverMsg =
         err?.response?.data?.message ||
-        err?.response?.data ||
+        (err?.response?.data && JSON.stringify(err.response.data)) ||
         err?.normalizedMessage ||
         err?.message ||
-        JSON.stringify(err);
+        "Registration failed";
       setError(serverMsg);
+      console.error("Register error:", err);
+    } finally {
       setLoading(false);
     }
   };
