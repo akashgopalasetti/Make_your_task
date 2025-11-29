@@ -1,18 +1,26 @@
-// frontend/server.js
-const express = require("express");
-const path = require("path");
+require('dotenv').config();
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const connectDB = require('./config/db');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+connectDB();
 
-// Serve built Vite files
-app.use(express.static(path.join(__dirname, "dist")));
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  credentials: true
+}));
 
-// SPA fallback for React Router
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/tasks', require('./routes/taskRoutes'));
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Server Error' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Frontend running on port ${PORT}`);
-});
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
