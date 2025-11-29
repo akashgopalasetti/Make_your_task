@@ -5,13 +5,17 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   const loadUser = async () => {
     try {
+      setLoadingUser(true);
       const res = await API.get("/auth/me");
       setUser(res.data);
     } catch (err) {
       setUser(null);
+    } finally {
+      setLoadingUser(false);
     }
   };
 
@@ -32,19 +36,23 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateProfile = async (payload) => {
-    // payload: { name, project, profilePic }
     const res = await API.put("/auth/me", payload);
     setUser(res.data);
     return res.data;
   };
 
   const logout = async () => {
-    await API.post("/auth/logout");
-    setUser(null);
+    try {
+      await API.post("/auth/logout");
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      setUser(null);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, updateProfile }}>
+    <AuthContext.Provider value={{ user, loadingUser, login, register, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,14 +1,12 @@
-// backend/config/db.js
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
     const uri = process.env.MONGO_URI;
-    if (!uri) throw new Error('MONGO_URI not set in .env');
+    if (!uri) throw new Error('MONGO_URI not set in environment');
 
-    // Mongoose 7+ handles connection options internally.
+    // mongoose 7+ handles options internally
     await mongoose.connect(uri);
-
     console.log('MongoDB connected');
   } catch (err) {
     console.error('MongoDB connection error:', err.message || err);

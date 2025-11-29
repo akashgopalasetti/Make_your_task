@@ -1,4 +1,3 @@
-// backend/controllers/taskController.js
 const Task = require('../models/Task');
 
 function sanitizeProgress(value) {
@@ -54,7 +53,6 @@ exports.getTask = async (req, res) => {
 
 exports.updateTask = async (req, res) => {
   try {
-    console.log('updateTask body:', req.body); // <-- debug log
     const updateFields = {};
     const allowed = ['title', 'description', 'status', 'progress'];
     for (const key of allowed) {

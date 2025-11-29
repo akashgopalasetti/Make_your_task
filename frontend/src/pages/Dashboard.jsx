@@ -11,10 +11,9 @@ export default function Dashboard() {
   const loadTasks = async () => {
     try {
       const res = await API.get("/tasks");
-      console.log('loaded tasks:', res.data); 
       setTasks(res.data);
     } catch (err) {
-      console.error('loadTasks error', err);
+      console.error("loadTasks error", err);
     }
   };
 

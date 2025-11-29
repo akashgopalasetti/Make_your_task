@@ -8,7 +8,6 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="nav-inner">
-
         <div className="brand">
           <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
             TaskApp
@@ -16,9 +15,7 @@ export default function Navbar() {
         </div>
 
         <div className="nav-links">
-
           <Link to="/">Home</Link>
-
 
           {!user && (
             <>
@@ -26,11 +23,13 @@ export default function Navbar() {
               <Link to="/register">Register</Link>
             </>
           )}
+
           {user && (
             <>
               <Link to="/dashboard">Dashboard</Link>
               <Link to="/profile">Profile</Link>
               <button
+                type="button"
                 onClick={logout}
                 className="btn btn-ghost"
                 style={{ padding: "6px 10px", border: "none", cursor: "pointer" }}
@@ -39,9 +38,7 @@ export default function Navbar() {
               </button>
             </>
           )}
-
         </div>
-
       </div>
     </nav>
   );

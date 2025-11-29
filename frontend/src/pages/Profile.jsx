@@ -84,9 +84,7 @@ export default function Profile() {
               className="input"
               placeholder="https://example.com/pic.jpg"
               value={form.profilePic}
-              onChange={(e) =>
-                setForm({ ...form, profilePic: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, profilePic: e.target.value })}
             />
 
             <button className="btn btn-primary" style={{ marginTop: "10px" }}>
@@ -94,9 +92,7 @@ export default function Profile() {
             </button>
           </form>
 
-          {message && (
-            <p style={{ color: "green", marginTop: "12px" }}>{message}</p>
-          )}
+          {message && <p style={{ color: "green", marginTop: "12px" }}>{message}</p>}
         </div>
       </div>
     </div>

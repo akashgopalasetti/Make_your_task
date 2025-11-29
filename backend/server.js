@@ -5,20 +5,35 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 
 const app = express();
+
+// Connect to MongoDB
 connectDB();
 
+// If running behind a proxy (Render, Heroku), trust proxy so secure cookies work
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
+// Middlewares
 app.use(express.json());
 app.use(cookieParser());
+
+// CORS - allow your frontend origin and credentials
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true
+  origin: CLIENT_URL,
+  credentials: true,
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization']
 }));
 
+// Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/tasks', require('./routes/taskRoutes'));
 
+// Generic error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('Unhandled error:', err.stack || err);
   res.status(500).json({ message: 'Server Error' });
 });
 

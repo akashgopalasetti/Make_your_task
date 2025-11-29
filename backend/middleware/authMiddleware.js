@@ -3,8 +3,8 @@ const User = require('../models/User');
 
 exports.protect = async (req, res, next) => {
   try {
-    // Support Authorization header bearer token or cookie token
     let token;
+
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
     } else if (req.cookies && req.cookies.token) {
@@ -15,9 +15,12 @@ exports.protect = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = await User.findById(decoded.id).select('-password');
+
+    if (!req.user) return res.status(401).json({ message: 'Not authorized' });
+
     next();
   } catch (err) {
-    console.error(err);
+    console.error('Auth protect error:', err.message || err);
     res.status(401).json({ message: 'Token is invalid or expired' });
   }
 };

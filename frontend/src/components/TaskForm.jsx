@@ -3,12 +3,20 @@ import API from "../api/api";
 
 export default function TaskForm({ refresh }) {
   const [form, setForm] = useState({ title: "", description: "" });
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await API.post("/tasks", form);
-    setForm({ title: "", description: "" });
-    refresh();
+    try {
+      setLoading(true);
+      await API.post("/tasks", form);
+      setForm({ title: "", description: "" });
+      if (refresh) refresh();
+    } catch (err) {
+      console.error("Create task error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,8 +39,8 @@ export default function TaskForm({ refresh }) {
           onChange={(e) => setForm({ ...form, description: e.target.value })}
         />
 
-        <button className="btn btn-primary" type="submit">
-          Add Task
+        <button className="btn btn-primary" type="submit" disabled={loading}>
+          {loading ? "Adding..." : "Add Task"}
         </button>
       </form>
     </div>
