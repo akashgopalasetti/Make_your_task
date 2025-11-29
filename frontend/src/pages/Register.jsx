@@ -8,15 +8,21 @@ export default function Register() {
   const [error, setError] = useState("");
   const nav = useNavigate();
 
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await register(form.name, form.email, form.password);
-      nav("/dashboard");
-    } catch {
-      setError("Registration failed");
-    }
-  };
+  e.preventDefault();
+  setError("");
+  try {
+    await register(form.name, form.email, form.password);
+    nav("/dashboard");
+  } catch (err) {
+    // show server response clearly
+    const serverMsg = err?.response?.data?.message || err?.response?.data || err.message || JSON.stringify(err);
+    setError(serverMsg);
+    console.error("Register error ->", err);
+  }
+};
+
 
   return (
     <div className="card">
