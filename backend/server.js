@@ -1,3 +1,4 @@
+// backend/server.js
 require('dotenv').config();
 const express = require('express');
 const cookieParser = require('cookie-parser');
@@ -23,9 +24,12 @@ const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 app.use(cors({
   origin: CLIENT_URL,
   credentials: true,
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Basic health check
+app.get('/health', (req, res) => res.json({ ok: true }));
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -38,4 +42,22 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const server = app.listen(PORT, () => console.log(`Server running on port ${PORT} (NODE_ENV=${process.env.NODE_ENV || 'development'})`));
+
+// Graceful shutdown for production platforms
+process.on('SIGTERM', () => {
+  console.info('SIGTERM received — shutting down gracefully');
+  server.close(() => {
+    console.info('HTTP server closed');
+    // Optionally close DB connection here if you have a reference
+    process.exit(0);
+  });
+
+  // Force exit after 10s
+  setTimeout(() => {
+    console.error('Forcing shutdown after 10s');
+    process.exit(1);
+  }, 10000);
+});
+
+module.exports = app;
