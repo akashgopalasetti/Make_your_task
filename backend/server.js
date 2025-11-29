@@ -27,6 +27,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type','Authorization']
 }));
 
+// Health check
+app.get('/health', (req, res) => res.json({ ok: true }));
+
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/tasks', require('./routes/taskRoutes'));
@@ -38,4 +41,15 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.info('SIGTERM received. Closing server.');
+  server.close(() => {
+    console.log('Server closed.');
+    process.exit(0);
+  });
+});
+
+module.exports = app;
