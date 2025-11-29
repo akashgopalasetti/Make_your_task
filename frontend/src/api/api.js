@@ -1,17 +1,20 @@
-// src/api/api.js
+// frontend/src/api/api.js
 import axios from "axios";
 
+function normalizeBase(url) {
+  if (!url) return url;
+  // ensure endsWith "/api" (no duplicate slashes)
+  return url.endsWith("/api") ? url.replace(/\/+$/, "") + "/api" : url.replace(/\/+$/, "") + "/api";
+}
+
+const envUrl = import.meta.env.VITE_API_URL || "";
+const base = envUrl ? normalizeBase(envUrl) : "https://make-your-task0.onrender.com/api";
+
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
+  baseURL: base,
   withCredentials: true,
 });
 
-API.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    err.normalizedMessage = err?.response?.data?.message || err?.response?.data || err.message;
-    return Promise.reject(err);
-  }
-);
+console.log("API baseURL:", API.defaults.baseURL);
 
 export default API;
